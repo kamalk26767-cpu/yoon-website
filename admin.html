@@ -1,0 +1,20 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="YOON — Your Online Operational Network. A simple link hub."><title>Manage Links | YOON</title><link rel="stylesheet" href="style.css"></head><body><div class="wrap"><nav class="nav"><a class="brand" href="index.html">YOON</a><div class="navlinks"><a href="index.html">Home</a><a href="admin.html">Manage Links</a></div></nav><main class="section"><div class="card"><h1>Link Management</h1><p class="muted">Add or remove the links shown on this browser's copy of the site.</p><form id="addForm" class="form"><input class="input" name="name" placeholder="Button name" required><input class="input" name="url" type="url" placeholder="https://example.com" required><input class="input" name="description" placeholder="Short description"><button>Add Link</button></form><div id="manage" style="margin-top:24px"></div><p class="notice"><b>Important:</b> This is a static-site demo. Browser localStorage is not a secure multi-user admin system. For a real public admin dashboard, connect this design to a server/database with authentication.</p></div></main><footer class="footer"><div>© 2026 Kamal Kumar · YOON</div><div class="footerlinks"><a href="privacy.html">Privacy</a><a href="disclaimer.html">Disclaimer</a><a href="terms.html">Terms</a><a href="mailto:kamalk26767@gmail.com">Contact</a></div></footer></div><script>
+const defaultLinks=[
+ {name:"Open Website",url:"https://example.com",description:"Add your destination URL"},
+ {name:"Featured Link",url:"https://example.com",description:"Your featured destination"}
+];
+function getLinks(){try{return JSON.parse(localStorage.getItem("yoon_links"))||defaultLinks}catch{return defaultLinks}}
+function saveLinks(x){localStorage.setItem("yoon_links",JSON.stringify(x))}
+function renderHome(){
+ const box=document.querySelector("#links"); if(!box)return;
+ box.innerHTML=getLinks().map((l,i)=>`<a class="btn" href="redirect.html?i=${i}"><span><b>${esc(l.name)}</b><br><small>${esc(l.description||"External website")}</small></span><span>↗</span></a>`).join("");
+}
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function renderAdmin(){
+ const box=document.querySelector("#manage"); if(!box)return;
+ box.innerHTML=getLinks().map((l,i)=>`<div class="item"><div><b>${esc(l.name)}</b><div class="muted">${esc(l.url)}</div></div><button class="danger" onclick="removeLink(${i})">Delete</button></div>`).join("");
+}
+function removeLink(i){let x=getLinks();x.splice(i,1);saveLinks(x);renderAdmin()}
+function addLink(e){e.preventDefault();let f=new FormData(e.target);let x=getLinks();x.push({name:f.get("name"),url:f.get("url"),description:f.get("description")});saveLinks(x);e.target.reset();renderAdmin();alert("Link added on this browser.")}
+document.addEventListener("DOMContentLoaded",()=>{renderHome();renderAdmin();const f=document.querySelector("#addForm");if(f)f.addEventListener("submit",addLink)});
+</script></body></html>
